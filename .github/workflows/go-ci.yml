@@ -1,4 +1,3 @@
-
 name: Go CI Pipeline
 
 on:
@@ -59,23 +58,35 @@ jobs:
           path: go-app
           retention-days: 7
 
- 
-  
   security-scan:
-    name: Trivy Security Scan
+    name: DevSecOps Security Scan
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set Up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.30.0
+
+      - name: Run gosec SAST Scan
+        run: |
+          "$(go env GOPATH)/bin/gosec" ./...
+
       - name: Run Trivy Security Scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           scan-type: fs
           scan-ref: .
-          scanners: vuln,secret
+          version: v0.76.2
+          scanners: vuln,secret,misconfig
           severity: HIGH,CRITICAL
           exit-code: '1'
           format: table
-
