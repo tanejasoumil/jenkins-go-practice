@@ -7,7 +7,7 @@ COPY main.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o server .
 
-FROM alpine:3.21
+FROM alpine:3.24
 
 RUN addgroup -S appgroup && \
     adduser -S -G appgroup appuser
